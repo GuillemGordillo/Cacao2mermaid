@@ -1,0 +1,152 @@
+{
+    "type": "playbook",
+    "spec_version": "1.0",
+    "id": "playbook--425bdb7c-f57f-11ed-b67e-0242ac120002",
+    "name": "Threat mitigated playbook",
+    "description": "This investigation playbook defines which actions to take when investigating a threat detected by the EDR SentinelOne",
+    "playbook_types": [
+        "investigation"
+    ],
+    "created_by": "identity--8c8a9b0e-ee75-11ed-a05b-0242ac120003",
+    "created": "2023-04-28T13:56:00.123456Z",
+    "modified": "2023-05-08T15:56:00.123456Z",
+    "revoked": false,
+    "valid_from": "2023-04-29T13:56:00.123456Z",
+    "valid_until": "2028-04-29T13:56:00.123456Z",
+    "priority": 20,
+    "severity": 0,
+    "impact": 10,
+    "labels": [
+        "edr",
+        "threat"
+    ],
+    "external_references": [
+        {
+            "name": "Malicious threat mitigated procedure",
+            "description": "Procedure on how to investigate a threat detected by S1",
+            "source": "Ackcent wiki",
+            "url": "https://rephrased/doc/bluebook/Playbooks/023-SentinelOne/01-SentinelOne/023010008/"
+        }
+    ],
+    "playbook_variables": { },
+    "workflow_start": "start--3246da38-f580-11ed-b67e-0242ac120002",
+    "workflow_exception": "step--858f9596-f57f-11ed-b67e-0242ac120002",
+    "workflow": {
+        "start--3246da38-f580-11ed-b67e-0242ac120002": {
+            "type": "start",
+            "on_completion": "single--46894aee-f580-11ed-b67e-0242ac120002",
+            "name": "Playbook start"
+        },
+        "single--46894aee-f580-11ed-b67e-0242ac120002": {
+            "type": "single",
+            "on_completion": "single--75b91420-f580-11ed-b67e-0242ac120002",
+            "name": "Set status as in progress"
+        },
+        "single--75b91420-f580-11ed-b67e-0242ac120002": {
+            "type": "single",
+            "on_completion": "switch--a5adb802-f580-11ed-b67e-0242ac120002",
+            "name": "Analyze detection"
+        },
+        "switch--a5adb802-f580-11ed-b67e-0242ac120002": {
+            "type": "switch",
+            "name": "Analyst verdict",
+            "description": "Take diferent actions depending on the verdict",
+            "cases": {
+                "True Positive": ["if-condition--5ed6a334-f581-11ed-b67e-0242ac120002"],
+                "False Positive": ["switch--07a80608-f585-11ed-b67e-0242ac120002"],
+                "Help needed": ["end--4d71bef8-f586-11ed-b67e-0242ac120002"]
+            }
+        },
+        "end--4d71bef8-f586-11ed-b67e-0242ac120002": {
+            "type": "end",
+            "name": "Escalate case"
+        },
+        "if-condition--5ed6a334-f581-11ed-b67e-0242ac120002": {
+            "type": "if-condition",
+            "name": "Impact detected?",
+            "description": "For example it wasn't properly mitigated",
+            "condition": "$$impact$$ == True",
+            "on_true" : ["playbook--cc64db32-f581-11ed-b67e-0242ac120002"],
+            "on_false": ["switch--63391afa-f582-11ed-b67e-0242ac120002"]
+        },
+        "switch--63391afa-f582-11ed-b67e-0242ac120002": {
+            "type": "switch",
+            "name": "Isolated threat?",
+            "description": "If not properly mitigated or the root is not properly mitigated",
+            "condition": "$$mal_behavior$$ == True",
+            "cases": {
+                "Possible infection or intrusion": ["playbook--cc64db32-f581-11ed-b67e-0242ac120002"],
+                "No malicious behavior": ["end--b04d19f0-f347-11ed-a05b-0242ac120003"]
+            }
+        },
+        "playbook--cc64db32-f581-11ed-b67e-0242ac120002": {
+            "type": "playbook",
+            "on_completion": "if-condition--bbddd88a-f582-11ed-b67e-0242ac120002",
+            "name": "Report to the customer"
+        },
+        "if-condition--bbddd88a-f582-11ed-b67e-0242ac120002": {
+            "type": "if-condition",
+            "name": "Urgent?",
+            "description": "For example it wasn't properly mitigated",
+            "condition": "$$priority$$ == 'Urgent'",
+            "on_true" : ["single--0f12ba84-f583-11ed-b67e-0242ac120002"],
+            "on_false": ["single--711f2064-f583-11ed-b67e-0242ac120002"]
+        },
+        "single--0f12ba84-f583-11ed-b67e-0242ac120002": {
+            "type": "single",
+            "on_completion": "end--b04d19f0-f347-11ed-a05b-0242ac120003",
+            "name": "Follow-up till resolution"
+        },
+        "single--711f2064-f583-11ed-b67e-0242ac120002": {
+            "type": "single",
+            "on_completion": "end--b04d19f0-f347-11ed-a05b-0242ac120003",
+            "name": "Call customer and follow-up"
+        },
+        "step--858f9596-f57f-11ed-b67e-0242ac120002": {
+            "type": "playbook",
+            "playbook_id": "playbook--695ebf16-ee75-11ed-a05b-0242ac120003",
+            "name": "Error reporting",
+            "on_completion": "",
+            "description": "Raise an error for further troubleshooting"
+        },
+        "switch--07a80608-f585-11ed-b67e-0242ac120002": {
+            "type": "switch",
+            "name": "Threat history / related",
+            "description": "Take diferent actions depending on the history of threats or related detections",
+            "cases": {
+                "Single occurrence": ["end--3919c99c-f585-11ed-b67e-0242ac120002"],
+                "Recurrent": ["single--a4e425fa-f585-11ed-b67e-0242ac120002"],
+                "Known false positive": ["single--c3897e7e-f585-11ed-b67e-0242ac120002"]
+            }
+        },
+        "single--a4e425fa-f585-11ed-b67e-0242ac120002": {
+            "type": "single",
+            "on_completion": "end--3919c99c-f585-11ed-b67e-0242ac120002",
+            "name": "Ask customer if exclusion needed"
+        },
+        "single--c3897e7e-f585-11ed-b67e-0242ac120002": {
+            "type": "single",
+            "on_completion": "end--3919c99c-f585-11ed-b67e-0242ac120002",
+            "name": "Add exclusion"
+        },
+        "end--b04d19f0-f347-11ed-a05b-0242ac120003": {
+            "type": "end",
+            "name": "Set as resolved & true positive"
+        },
+        "end--3919c99c-f585-11ed-b67e-0242ac120002": {
+            "type": "end",
+            "name": "Set as resolved & false positive"
+        }
+    },
+    "markings": [
+        "marking-tlp--fb92f342-f57e-11ed-b67e-0242ac120002"
+    ],
+    "marking-tlp--": {
+        "type": "marking-tlp",
+        "spec_version": "1.0",
+        "id": "marking-tlp--fb92f342-f57e-11ed-b67e-0242ac120002",
+        "created": "2023-04-28T13:56:00.123456Z",
+        "tlp_level": "TLP-WHITE"
+    },
+    "signatures": []
+}
