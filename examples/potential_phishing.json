@@ -1,0 +1,335 @@
+{
+    "type": "playbook",
+    "spec_version": "1.0",
+    "id": "playbook--fdd3ccbc-ee76-11ed-a05b-0242ac120003",
+    "name": "Reported phishing",
+    "description": "This investigation playbook defines some actions to analyse an email when a potential phishing is reported",
+    "playbook_types": [
+        "investigation"
+    ],
+    "created_by": "identity--8c8a9b0e-ee75-11ed-a05b-0242ac120003",
+    "created": "2023-04-15T13:56:00.123456Z",
+    "modified": "2023-05-08T15:56:00.123456Z",
+    "revoked": false,
+    "valid_from": "2023-04-28T13:56:00.123456Z",
+    "valid_until": "2028-04-28T13:56:00.123456Z",
+    "priority": 15,
+    "severity": 0,
+    "impact": 10,
+    "labels": [
+        "phishing",
+        "email"
+    ],
+    "external_references": [
+        {
+            "name": "Microsoft's phishing playbook",
+            "description": "Procedure on how to investigate a potential phishing",
+            "source": "Microsoft's documentation",
+            "url": "https://learn.microsoft.com/en-us/security/operations/incident-response-playbook-phishing"
+        }
+    ],
+    "playbook_variables": {
+        "$$email$$" : {
+            "type": "string",
+            "description": "Input message ID",
+            "constant": true,
+            "external": true
+        }
+    },
+    "workflow_start": "start--dc6f1dea-f332-11ed-a05b-0242ac120003",
+    "workflow_exception": "step--76a0a316-f333-11ed-a05b-0242ac120003",
+    "workflow": {
+        "start--dc6f1dea-f332-11ed-a05b-0242ac120003": {
+            "type": "start",
+            "on_completion": "parallel--f0983ab8-f332-11ed-a05b-0242ac120003",
+            "name": "Playbook start"
+        },
+        "parallel--f0983ab8-f332-11ed-a05b-0242ac120003": {
+            "type": "parallel",
+            "name": "Extract indicators",
+            "next_steps": [
+                "parallel--95bed532-f334-11ed-a05b-0242ac120003",
+                "parallel--dd57c3a4-f334-11ed-a05b-0242ac120003",
+                "parallel--e0e582cc-f334-11ed-a05b-0242ac120003"
+            ]
+        },
+        "parallel--95bed532-f334-11ed-a05b-0242ac120003": {
+            "type": "parallel",
+            "name": "Header analysis",
+            "next_steps": [
+                "single--27bbb28a-f343-11ed-a05b-0242ac120003",
+                "single--2fec20b6-f343-11ed-a05b-0242ac120003",
+                "single--34b042bc-f343-11ed-a05b-0242ac120003"
+            ]
+        },
+        "single--27bbb28a-f343-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--9f385d4a-f33e-11ed-a05b-0242ac120003",
+            "name": "SPF, DKIM & DMARC",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Analyse SMTP's policies"
+                }
+            ]
+        },
+        "single--2fec20b6-f343-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--9f385d4a-f33e-11ed-a05b-0242ac120003",
+            "name": "Transport IPs",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Lookup all the steps in the transport of the message"
+                }
+            ]
+        },
+        "single--34b042bc-f343-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--9f385d4a-f33e-11ed-a05b-0242ac120003",
+            "name": "Extra headers",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Analyze potentially added headers by the provider such as SCL or BCL"
+                }
+            ]
+        },
+        "parallel--dd57c3a4-f334-11ed-a05b-0242ac120003": {
+            "type": "parallel",
+            "name": "Get content",
+            "next_steps": [
+                "single--e68ef83c-f33b-11ed-a05b-0242ac120003",
+                "single--06591c7e-f33c-11ed-a05b-0242ac120003"
+            ]
+        },
+        "single--e68ef83c-f33b-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--9f385d4a-f33e-11ed-a05b-0242ac120003",
+            "name": "URL analysis",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Analyze any URL from the body"
+                }
+            ]
+        },
+        "single--06591c7e-f33c-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--9f385d4a-f33e-11ed-a05b-0242ac120003",
+            "name": "Email intention",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "¿What's the intent of the message?¿Is it expected within your context?"
+                }
+            ]
+        },
+        "parallel--e0e582cc-f334-11ed-a05b-0242ac120003": {
+            "type": "parallel",
+            "name": "Get attachments",
+            "next_steps": [
+                "single--829317fe-f33c-11ed-a05b-0242ac120003",
+                "single--1783576a-f33e-11ed-a05b-0242ac120003"
+            ]
+        },
+        "single--829317fe-f33c-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--9f385d4a-f33e-11ed-a05b-0242ac120003",
+            "name": "Static analysis",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Lookup details on VT. Analyse code if possible, for example on html attachment."
+                }
+            ]
+        },
+        "single--1783576a-f33e-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--9f385d4a-f33e-11ed-a05b-0242ac120003",
+            "name": "Dynamic analysis",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Detonate on anyrun."
+                }
+            ]
+        },
+        "single--9f385d4a-f33e-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "switch--52039e1a-f33c-11ed-a05b-0242ac120003",
+            "name": "Verdict",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Collecting all the information should give us a clue on whether malicious activity is found or not. It is needed to update the verdict variable"
+                }
+            ],
+            "out_args": ["$$verdict$$"]
+        },
+        "switch--52039e1a-f33c-11ed-a05b-0242ac120003": {
+            "type": "switch",
+            "name": "Malicious?",
+            "description": "Take diferent actions depending on the verdict",
+            "cases": {
+                "Yes": ["single--6e291978-f344-11ed-a05b-0242ac120003"],
+                "No": ["single--605b3d5a-f34c-11ed-a05b-0242ac120003"]
+            }
+        },
+        "single--6e291978-f344-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--37d34180-f346-11ed-a05b-0242ac120003",
+            "name": "Get recipients",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Gather all the recipients for the message"
+                }
+            ]
+        },
+        "single--37d34180-f346-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--6bb91b00-f346-11ed-a05b-0242ac120003",
+            "name": "Quarantine",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Quarantine email"
+                }
+            ],
+            "out_args": ["$$recipients$$"]
+        },
+        "single--6bb91b00-f346-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "switch--8a96c360-f346-11ed-a05b-0242ac120003",
+            "name": "Lookup IOCs",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Lookup all the collected IOCs in order to detect user interaction"
+                }
+            ],
+            "out_args": ["$$interaction$$"]
+        },
+        "switch--8a96c360-f346-11ed-a05b-0242ac120003": {
+            "type": "switch",
+            "name": "User interaction?",
+            "description": "If a user interacted with the email mitigate potential threats",
+            "cases": {
+                "Yes": ["single--d35f3820-f346-11ed-a05b-0242ac120003"],
+                "No": ["single--a5b6d494-f348-11ed-a05b-0242ac120003"]
+            }
+        },
+        "single--a5b6d494-f348-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--622495e0-f348-11ed-a05b-0242ac120003",
+            "name": "Quarantine attachments",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Add the hashes to the blocklist of the EDR."
+                }
+            ]
+        },
+        "single--d35f3820-f346-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--1daee20e-f347-11ed-a05b-0242ac120003",
+            "name": "Block user if phishing site",
+            "description": "take the proper actions based on the potential threat",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Block user or isolate workstation based on the threat"
+                }
+            ]
+        },
+        "single--1daee20e-f347-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--880adeaa-f347-11ed-a05b-0242ac120003",
+            "name": "Investigate exchange logs",
+            "description": "Detect events on affected users",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Look for forward rule, sign in logs, messages sent, etc."
+                }
+            ]
+        },
+        "single--880adeaa-f347-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "step--07101b3e-f348-11ed-a05b-0242ac120003",
+            "name": "Investigate exchange logs",
+            "description": "Detect events on affected users",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Look for forward rule, sign in logs, messages sent, etc."
+                }
+            ]
+        },
+        "step--07101b3e-f348-11ed-a05b-0242ac120003": {
+            "type": "playbook",
+            "playbook_id": "playbook--695ebf16-ee75-11ed-a05b-0242ac120003",
+            "name": "Alert creation",
+            "on_completion": "single--622495e0-f348-11ed-a05b-0242ac120003",
+            "description": "Create an alert for further documenting and investigation",
+            "in_args": ["$$email$$"]
+        },
+        "single--622495e0-f348-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "end--b04d19f0-f347-11ed-a05b-0242ac120003",
+            "name": "Report domain",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "This will vary depending on the domain"
+                }
+            ]
+        },
+        "single--605b3d5a-f34c-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "single--630ed12e-f34c-11ed-a05b-0242ac120003",
+            "name": "Unquarantine",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "If needed unquarantine the email or remove from spam"
+                }
+            ]
+        },
+        "single--630ed12e-f34c-11ed-a05b-0242ac120003": {
+            "type": "single",
+            "on_completion": "end--b04d19f0-f347-11ed-a05b-0242ac120003",
+            "name": "Document investigation",
+            "commands": [
+                {
+                    "type": "manual",
+                    "command": "Register the evidences gathered"
+                }
+            ]
+        },
+        "step--76a0a316-f333-11ed-a05b-0242ac120003": {
+            "type": "playbook",
+            "playbook_id": "playbook--695ebf16-ee75-11ed-a05b-0242ac120003",
+            "name": "Alert creation",
+            "on_completion": "end--b04d19f0-f347-11ed-a05b-0242ac120003",
+            "description": "Create an alert for further documenting",
+            "in_args": ["$$email$$"]
+        },
+        "end--b04d19f0-f347-11ed-a05b-0242ac120003": {
+            "type": "end",
+            "name": "Playbook end"
+        }
+    },
+    "markings": [
+        "marking-tlp--752c02ac-f331-11ed-a05b-0242ac120003"
+    ],
+    "marking-tlp--": {
+        "type": "marking-tlp",
+        "spec_version": "1.0",
+        "id": "marking-tlp--752c02ac-f331-11ed-a05b-0242ac120003",
+        "created": "2023-04-15T13:56:00.123456Z",
+        "tlp_level": "TLP-WHITE"
+    },
+    "signatures": []
+}
